@@ -107,7 +107,7 @@ runs:
       if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
       working-directory: docs
       env:
-          JEKYLL_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JEKYLL_GITHUB_TOKEN: ${{ github.token }}
       run: JEKYLL_ENV=production bundle exec jekyll build  # Note this will also copy the blueprint and API doc into docs/_site
       shell: bash
 

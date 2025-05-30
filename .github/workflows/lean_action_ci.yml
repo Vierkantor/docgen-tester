@@ -5,9 +5,16 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and modify PR labels
+permissions:
+  contents: read          # Read access to repository contents
+  pages: write            # Write access to GitHub Pages
+  id-token: write         # Write access to ID tokens
+  issues: write           # Write access to issues
+  pull-requests: write    # Write access to pull requests
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: Vierkantor/docgen-tester@main
