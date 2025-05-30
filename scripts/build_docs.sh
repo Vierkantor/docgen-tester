@@ -4,7 +4,7 @@
 # treat unset variables as an error, and ensure errors in pipelines are not masked.
 set -euo pipefail
 
-# Build HTML documentation for FLT
+# Build HTML documentation for the project
 # The output will be located in docs/docs
 
 # Create a temporary docbuild folder
@@ -18,7 +18,7 @@ version = "0.1.0"
 packagesDir = "../.lake/packages"
 
 [[require]]
-name = "FLT"
+name = "$NAME"
 path = "../"
 
 [[require]]
@@ -31,10 +31,10 @@ EOF
 cd docbuild
 
 # Disable an error message due to a non-blocking bug. See Zulip
-MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update FLT
+MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update $NAME
 
 # Build the docs
-~/.elan/bin/lake build FLT:docs
+~/.elan/bin/lake build $NAME:docs
 
 # Copy documentation to `docs/docs`
 cd ../
