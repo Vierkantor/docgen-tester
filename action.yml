@@ -10,13 +10,14 @@ inputs:
       This GitHub Action uses leanprover/lean-action to build and test the repository.
       This parameter determines what to pass to the build-args argument of leanprover/lean-action.
     required: false
-    default: "--log-level=warning"runs:
+    default: "--log-level=warning"
   lake_package_directory:
     description: |
       The directory containing the Lake package to build.
       This parameter is passed to the lake-package-directory argument of leanprover/lean-action.
     required: false
     default: "."
+runs:
   using: "composite"
   steps:
     - name: Checkout project
