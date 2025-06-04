@@ -25,10 +25,11 @@ runs:
       with:
         fetch-depth: 0 # Fetch all history for all branches and tags
 
-    - name: Determine the project's name.
-      id: determine-project-name
-      run: awk -F '"' '/name = "([^"]*)"/{ print "name="$2 }' lakefile.toml | head -n 1 >> $GITHUB_OUTPUT
+    - name: Parse the project metadata.
+      id: determine-project-metadata
+      run: node "${{ github.action_path }}/dist/index.js"
       shell: bash
+      working-directory: ${{ inputs.lake_package_directory }}
 
     - name: Build and lint the project.
       id: build-lean
@@ -100,22 +101,23 @@ runs:
       run: scripts/build_docs.sh
       shell: bash
       env:
-        NAME: ${{ steps.determine-project-name.outputs.name }}
+        NAME: ${{ steps.determine-project-metadata.outputs.name }}
+        DOCS_FACETS: ${{ steps.determine-project-metadata.outputs.docs_facets }}
 
     - name: Bundle dependencies
       if: github.event_name == 'push'
       uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
       with:
         working-directory: docs
-        ruby-version: "3.1"  # Specify Ruby version
-        bundler-cache: true  # Enable caching for bundler
+        ruby-version: "3.1" # Specify Ruby version
+        bundler-cache: true # Enable caching for bundler
 
     - name: Build website using Jekyll
       if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
       working-directory: docs
       env:
-          JEKYLL_GITHUB_TOKEN: ${{ github.token }}
-      run: JEKYLL_ENV=production bundle exec jekyll build  # Note this will also copy the blueprint and API doc into docs/_site
+        JEKYLL_GITHUB_TOKEN: ${{ github.token }}
+      run: JEKYLL_ENV=production bundle exec jekyll build # Note this will also copy the blueprint and API doc into docs/_site
       shell: bash
 
     - name: "Upload website (API documentation, blueprint and any home page)"

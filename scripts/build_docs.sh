@@ -34,7 +34,7 @@ cd docbuild
 MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update $NAME
 
 # Build the docs
-~/.elan/bin/lake build $NAME:docs
+~/.elan/bin/lake build $DOCS_FACETS
 
 # Copy documentation to `docs/docs`
 cd ../
