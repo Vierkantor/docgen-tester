@@ -38,5 +38,6 @@ MATHLIB_NO_CACHE_ON_UPDATE=1 ~/.elan/bin/lake update $NAME
 
 # Copy documentation to `docs/docs`
 cd ../
+mkdir -p docs/docs
 sudo chown -R runner docs
 cp -r docbuild/.lake/build/doc docs/docs
