@@ -86,7 +86,7 @@ runs:
 
     - name: Build project API documentation
       if: github.event_name == 'push'
-      run: scripts/build_docs.sh
+      run: ${{ github.action_path }}/scripts/build_docs.sh
       shell: bash
       env:
         NAME: ${{ steps.determine-project-metadata.outputs.name }}
