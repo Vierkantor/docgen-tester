@@ -20,23 +20,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout project
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      with:
-        fetch-depth: 0 # Fetch all history for all branches and tags
-
     - name: Parse the project metadata.
       id: determine-project-metadata
       run: node "${{ github.action_path }}/dist/index.js"
       shell: bash
       working-directory: ${{ inputs.lake_package_directory }}
-
-    - name: Build and lint the project.
-      id: build-lean
-      uses: leanprover/lean-action@f807b338d95de7813c5c50d018f1c23c9b93b4ec # v1.2.0
-      with:
-        build-args: ${{ inputs.build_args }}
-        lake-package-directory: ${{ inputs.lake_package_directory }}
 
     - name: check that the file importing all is up to date
       run: ~/.elan/bin/lake exe mk_all --check
@@ -130,4 +118,3 @@ runs:
       if: github.event_name == 'push'
       id: deployment
       uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
-
