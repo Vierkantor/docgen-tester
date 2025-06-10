@@ -40,19 +40,19 @@ runs:
         path: ${{ steps.determine-project-metadata.outputs.cached_docbuild_dependencies }}
         key: Docs-${{ hashFiles('lake-manifest.json') }}
 
-    - name: Check for ${ inputs.homepage} folder # this is meant to detect a Jekyll-based website
+    - name: Check for ${{ inputs.homepage }} folder # this is meant to detect a Jekyll-based website
       id: check_docs
       run: |
-        if [ -d ${ inputs.homepage} ]; then
-          echo "The '${ inputs.homepage}' folder exists in the repository."
+        if [ -d ${{ inputs.homepage }} ]; then
+          echo "The '${{ inputs.homepage }}' folder exists in the repository."
           echo "DOCS_EXISTS=true" >> $GITHUB_ENV
         else
-          echo "The '${ inputs.homepage}' folder does not exist in the repository."
+          echo "The '${{ inputs.homepage }}' folder does not exist in the repository."
           echo "DOCS_EXISTS=false" >> $GITHUB_ENV
         fi
       shell: bash
 
-    - name: Build blueprint and copy to `${ inputs.homepage}/blueprint`
+    - name: Build blueprint and copy to `${{ inputs.homepage }}/blueprint`
       if: inputs.blueprint == 'true'
       uses: xu-cheng/texlive-action@f886de8159e5952a131848a5fa9c3196a2132b5d # v2
       with:
@@ -69,10 +69,10 @@ runs:
           pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
           pip install leanblueprint
           leanblueprint pdf
-          mkdir -p ${ inputs.homepage}
-          cp blueprint/print/print.pdf ${ inputs.homepage}/blueprint.pdf
+          mkdir -p ${{ inputs.homepage }}
+          cp blueprint/print/print.pdf ${{ inputs.homepage }}/blueprint.pdf
           leanblueprint web
-          cp -r blueprint/web ${ inputs.homepage }/blueprint
+          cp -r blueprint/web ${{ inputs.homepage }}/blueprint
 
     - name: Check declarations mentioned in the blueprint exist in Lean code
       if: inputs.blueprint == 'true'
