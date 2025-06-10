@@ -28369,7 +28369,17 @@ try {
     );
   }
   const lakefile = TOML.parse(lakefileContents);
-  console.log(JSON.stringify(lakefile));
+
+  var lakeManifestContents;
+  try {
+    lakeManifestContents = require$$1.readFileSync("lake-manifest.json", "utf-8");
+  } catch (error) {
+    throw new Error(
+      `Could not find \`lake-manifest.json\`.\nNote: nested error: ${error}.\nHint: run \`lake update\` and commit the generated \`lake-manifest.json\` file.`,
+    );
+  }
+  const lakeManifest = JSON.parse(lakeManifestContents);
+  const dependencyNames = lakeManifest.packages.map((pkg) => pkg.name);
 
   // Output status to GitHub Actions.
   core.setOutput("name", lakefile.name);
@@ -28377,6 +28387,10 @@ try {
   core.setOutput(
     "docs_facets",
     lakefile.defaultTargets.map((target) => `${target}:docs`).join(" "),
+  );
+  core.setOutput(
+    "cached_docbuild_dependencies",
+    dependencyNames.map((dep) => `docbuild/.lake/build/doc/${dep}`).join("\n"),
   );
 } catch (error) {
   console.error("Error parsing Lake package description:", error.message);
