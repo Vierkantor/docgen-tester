@@ -5,6 +5,10 @@ inputs:
     description: Set to true to build a blueprint alongside your documentation.
     required: false
     default: "false"
+  homepage:
+    description: The folder where the Jekyll site can be found.
+    required: false
+    default: "docs"
   build_args:
     description: |
       This GitHub Action uses leanprover/lean-action to build and test the repository.
@@ -36,19 +40,19 @@ runs:
         path: ${{ steps.determine-project-metadata.outputs.cached_docbuild_dependencies }}
         key: Docs-${{ hashFiles('lake-manifest.json') }}
 
-    - name: Check for `docs` folder # this is meant to detect a Jekyll-based website
+    - name: Check for ${ inputs.homepage} folder # this is meant to detect a Jekyll-based website
       id: check_docs
       run: |
-        if [ -d docs ]; then
-          echo "The 'docs' folder exists in the repository."
+        if [ -d ${ inputs.homepage} ]; then
+          echo "The '${ inputs.homepage}' folder exists in the repository."
           echo "DOCS_EXISTS=true" >> $GITHUB_ENV
         else
-          echo "The 'docs' folder does not exist in the repository."
+          echo "The '${ inputs.homepage}' folder does not exist in the repository."
           echo "DOCS_EXISTS=false" >> $GITHUB_ENV
         fi
       shell: bash
 
-    - name: Build blueprint and copy to `docs/blueprint`
+    - name: Build blueprint and copy to `${ inputs.homepage}/blueprint`
       if: inputs.blueprint == 'true'
       uses: xu-cheng/texlive-action@f886de8159e5952a131848a5fa9c3196a2132b5d # v2
       with:
@@ -65,10 +69,10 @@ runs:
           pip install pygraphviz --global-option=build_ext --global-option="-L/usr/lib/graphviz/" --global-option="-R/usr/lib/graphviz/"
           pip install leanblueprint
           leanblueprint pdf
-          mkdir -p docs
-          cp blueprint/print/print.pdf docs/blueprint.pdf
+          mkdir -p ${ inputs.homepage}
+          cp blueprint/print/print.pdf ${ inputs.homepage}/blueprint.pdf
           leanblueprint web
-          cp -r blueprint/web docs/blueprint
+          cp -r blueprint/web ${ inputs.homepage }/blueprint
 
     - name: Check declarations mentioned in the blueprint exist in Lean code
       if: inputs.blueprint == 'true'
@@ -82,28 +86,29 @@ runs:
       env:
         NAME: ${{ steps.determine-project-metadata.outputs.name }}
         DOCS_FACETS: ${{ steps.determine-project-metadata.outputs.docs_facets }}
+        HOMEPAGE: ${{ inputs.homepage }}
 
     - name: Bundle dependencies
       if: github.event_name == 'push'
       uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
       with:
-        working-directory: docs
+        working-directory: ${{ inputs.homepage }}
         ruby-version: "3.1" # Specify Ruby version
         bundler-cache: true # Enable caching for bundler
 
     - name: Build website using Jekyll
       if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
-      working-directory: docs
+      working-directory: ${{ inputs.homepage }}
       env:
         JEKYLL_GITHUB_TOKEN: ${{ github.token }}
-      run: JEKYLL_ENV=production bundle exec jekyll build # Note this will also copy the blueprint and API doc into docs/_site
+      run: JEKYLL_ENV=production bundle exec jekyll build # Note this will also copy the blueprint and API doc into ${{ inputs.homepage }}/_site
       shell: bash
 
     - name: "Upload website (API documentation, blueprint and any home page)"
       if: github.event_name == 'push'
       uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
       with:
-        path: ${{ env.DOCS_EXISTS == 'true' && 'docs/_site' || 'docs/' }}
+        path: ${{ env.DOCS_EXISTS == 'true' && '${{ inputs.homepage }}/_site' || '${{ inputs.homepage }}/' }}
 
     - name: Deploy to GitHub Pages
       if: github.event_name == 'push'
