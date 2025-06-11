@@ -108,7 +108,7 @@ runs:
       if: github.event_name == 'push'
       uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
       with:
-        path: ${{ env.DOCS_EXISTS == 'true' && inputs.homepage '/_site' || ${{ inputs.homepage }}/ }}
+        path: ${{ env.DOCS_EXISTS == 'true' && inputs.homepage + '/_site' || ${{ inputs.homepage }}/ }}
 
     - name: Deploy to GitHub Pages
       if: github.event_name == 'push'
