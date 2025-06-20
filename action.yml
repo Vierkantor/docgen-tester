@@ -12,7 +12,7 @@ inputs:
   homepage:
     description: The folder where the Jekyll site can be found.
     required: false
-    default: "docs"
+    default: "home_page"
   build_args:
     description: |
       This GitHub Action uses leanprover/lean-action to build and test the repository.
@@ -89,7 +89,7 @@ runs:
         HOMEPAGE: ${{ inputs.homepage }}
 
     - name: Bundle dependencies
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
       uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
       with:
         working-directory: ${{ inputs.homepage }}
