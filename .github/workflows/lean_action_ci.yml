@@ -25,5 +25,3 @@ jobs:
         uses: leanprover/lean-action@f807b338d95de7813c5c50d018f1c23c9b93b4ec # v1.2.0
 
       - uses: Vierkantor/docgen-tester@main
-        with:
-          api_docs: false
