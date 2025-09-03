@@ -26,4 +26,4 @@ jobs:
 
       - uses: Vierkantor/docgen-tester@main
         with:
-          api_docs: false
+          deploy: false
