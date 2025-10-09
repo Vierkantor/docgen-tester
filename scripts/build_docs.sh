@@ -11,6 +11,9 @@ set -euo pipefail
 # based on the `lean-toolchain` of this project:
 # either the `v4.X.Y` or `v4.X.Y-rcZ` tags, or the `main` or `nightly-testing` branches.
 determine_doc_gen_rev() {
+    echo "7371f70a58dadf686753c3f5174c0c1bbd28228e"
+    return 0
+
     local toolchain_content
     local toolchain_repository
     local toolchain_revision
@@ -71,9 +74,9 @@ name = "$NAME"
 path = "../"
 
 [[require]]
-scope = "leanprover"
+scope = "Vierkantor"
 name = "doc-gen4"
-rev = "$DOC_GEN_REV"
+rev = "7371f70a58dadf686753c3f5174c0c1bbd28228e"
 EOF
 
 # Initialise docbuild as a Lean project
