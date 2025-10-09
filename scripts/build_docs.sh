@@ -11,7 +11,7 @@ set -euo pipefail
 # based on the `lean-toolchain` of this project:
 # either the `v4.X.Y` or `v4.X.Y-rcZ` tags, or the `main` or `nightly-testing` branches.
 determine_doc_gen_rev() {
-    echo "7371f70a58dadf686753c3f5174c0c1bbd28228e"
+    echo "c7881def2a694eabd5817ed1296a292e59e2a8cb"
     return 0
 
     local toolchain_content
@@ -76,7 +76,7 @@ path = "../"
 [[require]]
 name = "doc-gen4"
 git = "https://github.com/Vierkantor/doc-gen4"
-rev = "7371f70a58dadf686753c3f5174c0c1bbd28228e"
+rev = "${DOC_GEN_REV}"
 EOF
 
 # Initialise docbuild as a Lean project
