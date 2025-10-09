@@ -1,45 +1,73 @@
 name: "Documentation generation"
 description: "Generates API documentation for your Lean project"
 inputs:
-  api_docs:
+  api-docs:
     description: Set to true to build API docs alongside the rest of your documentation. (This is enabled by default but can be disabled if you are only interested in the blueprint.)
     required: false
     default: "true"
+  # DEPRECATED: This input will be removed in a future version
+  api_docs:
+    description: "DEPRECATED: Use api-docs instead"
+    required: false
   blueprint:
     description: Set to true to build a blueprint alongside your documentation.
     required: false
     default: "false"
+  build-page:
+    description: Set to true to build the homepage using Jekyll alongside the rest of your documentation. (This is enabled by default but can be disabled if you are only interested in the API docs and/or blueprint.)
+    required: false
+    default: "true"
+  deploy:
+    description: Set to true to deploy the built documentation (API docs and/or blueprint and/or homepage) to GitHub Pages. (This is enabled by default but can be disabled for a dry run.)
+    required: false
+    default: "true"
   homepage:
     description: The folder where the Jekyll site can be found.
     required: false
-    default: "home_page"
-  build_args:
+    default: "docs"
+  build-args:
     description: |
       This GitHub Action uses leanprover/lean-action to build and test the repository.
       This parameter determines what to pass to the build-args argument of leanprover/lean-action.
     required: false
     default: "--log-level=warning"
-  lake_package_directory:
+  # DEPRECATED: This input will be removed in a future version
+  build_args:
+    description: "DEPRECATED: Use build-args instead"
+    required: false
+  lake-package-directory:
     description: |
       The directory containing the Lake package to build.
       This parameter is passed to the lake-package-directory argument of leanprover/lean-action.
     required: false
     default: "."
+  # DEPRECATED: This input will be removed in a future version
+  lake_package_directory:
+    description: "DEPRECATED: Use lake-package-directory instead"
+    required: false
 runs:
   using: "composite"
   steps:
+    # DEPRECATION HANDLER STEP - Remove this step when dropping deprecation support
+    - name: Handle deprecation and set environment variables
+      id: deprecation
+      run: node "${{ github.action_path }}/dist/deprecation.js"
+      shell: bash
+
     - name: Parse the project metadata.
       id: determine-project-metadata
       run: node "${{ github.action_path }}/dist/index.js"
       shell: bash
-      working-directory: ${{ inputs.lake_package_directory }}
+      # TODO: When dropping deprecation support, change this back to: working-directory: ${{ inputs.lake-package-directory }}
+      working-directory: ${{ env.LAKE_PACKAGE_DIRECTORY }}
 
     - name: Cache Mathlib docs
       # With the current setup, this condition should always be true (except for Lean itself perhaps).
       # However, if it turns out false that just means we have nothing to cache,
       # and so we skip the caching step, instead of erroring due to an empty `path` input.
+      # TODO: When dropping deprecation support, change this back to: inputs.api-docs == 'true'
       if: |
-        github.event_name == 'push' && inputs.api_docs == 'true' &&
+        github.event_name == 'push' && env.API_DOCS == 'true' &&
           steps.determine-project-metadata.outputs.cached_docbuild_dependencies != ''
       uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
       with:
@@ -48,6 +76,7 @@ runs:
 
     - name: Check for ${{ inputs.homepage }} folder # this is meant to detect a Jekyll-based website
       id: check_docs
+      if: inputs.build-page == 'true'
       run: |
         if [ -d ${{ inputs.homepage }} ]; then
           echo "The '${{ inputs.homepage }}' folder exists in the repository."
@@ -86,7 +115,8 @@ runs:
       shell: bash
 
     - name: Build project API documentation
-      if: github.event_name == 'push' && inputs.api_docs == 'true'
+      # TODO: When dropping deprecation support, change this back to: inputs.api-docs == 'true'
+      if: github.event_name == 'push' && env.API_DOCS == 'true'
       run: ${{ github.action_path }}/scripts/build_docs.sh
       shell: bash
       env:
@@ -95,15 +125,15 @@ runs:
         HOMEPAGE: ${{ inputs.homepage }}
 
     - name: Bundle dependencies
-      if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
+      if: github.event_name == 'push' && inputs.build-page == 'true' && env.DOCS_EXISTS == 'true'
       uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
       with:
         working-directory: ${{ inputs.homepage }}
-        ruby-version: "3.4" # Specify Ruby version
+        ruby-version: "3.1" # Specify Ruby version
         bundler-cache: true # Enable caching for bundler
 
     - name: Build website using Jekyll
-      if: github.event_name == 'push' && env.DOCS_EXISTS == 'true'
+      if: github.event_name == 'push' && inputs.build-page == 'true' && env.DOCS_EXISTS == 'true'
       working-directory: ${{ inputs.homepage }}
       env:
         JEKYLL_GITHUB_TOKEN: ${{ github.token }}
@@ -111,12 +141,12 @@ runs:
       shell: bash
 
     - name: "Upload website (API documentation, blueprint and any home page)"
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' && inputs.deploy == 'true'
       uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
       with:
         path: ${{ env.DOCS_EXISTS == 'true' && format('{0}/_site', inputs.homepage) || format('{0}/', inputs.homepage) }}
 
     - name: Deploy to GitHub Pages
-      if: github.event_name == 'push'
+      if: github.event_name == 'push' && inputs.deploy == 'true'
       id: deployment
       uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
