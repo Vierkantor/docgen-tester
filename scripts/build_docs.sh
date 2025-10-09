@@ -74,8 +74,8 @@ name = "$NAME"
 path = "../"
 
 [[require]]
-scope = "Vierkantor"
 name = "doc-gen4"
+git = "https://github.com/Vierkantor/doc-gen4"
 rev = "7371f70a58dadf686753c3f5174c0c1bbd28228e"
 EOF
 
