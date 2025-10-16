@@ -11,7 +11,7 @@ set -euo pipefail
 # based on the `lean-toolchain` of this project:
 # either the `v4.X.Y` or `v4.X.Y-rcZ` tags, or the `main` or `nightly-testing` branches.
 determine_doc_gen_rev() {
-    echo "a46670581a294e71675011d74b245ace5b8d8a62"
+    echo "1cd7a1113090e216703e323e8fdcdf099f0a9c8a"
     return 0
 
     local toolchain_content
